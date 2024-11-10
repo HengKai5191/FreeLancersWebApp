@@ -1,0 +1,155 @@
+﻿@using Freelancer_Management_API.Model
+@model MC_FreeLancer
+
+<div class="container mt-4">
+    <h2>Update Freelancer</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <form asp-action="updateFreeLancer" method="post">
+        <input type="hidden" asp-for="FL_Id" />
+        @Html.HiddenFor(m=>m.FL_Id)
+
+        <div class="mb-3">
+            <label asp-for="FL_Username" class="form-label">Username</label>
+            <input asp-for="FL_Username" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FL_Email" class="form-label">Email</label>
+            <input asp-for="FL_Email" type="email" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FL_PhoneNumber" class="form-label">Phone Number</label>
+            <input asp-for="FL_PhoneNumber" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FL_Skillsets" class="form-label">Skillsets</label>
+            <input type="text" id="skillInput" class="form-control mb-2" placeholder="Add a skill and press Enter" />
+            <div id="skillsetContainer" class="mb-2">
+                @foreach (var skill in Model.FL_Skillsets)
+                {
+                    <span class="badge bg-primary me-1 mb-1">
+                        @skill
+                        <button type="button" class="btn-close btn-close-white" 
+                                onclick="removeSkill(this, 'FL_Skillsets')" aria-label="Close"></button>
+                    </span>
+                }
+            </div>
+            <div id="FL_Skillsets_container"></div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FL_Hobbies" class="form-label">Hobbies</label>
+            <input type="text" id="hobbyInput" class="form-control mb-2" placeholder="Add a hobby and press Enter" />
+            <div id="hobbyContainer" class="mb-2">
+                @foreach (var hobby in Model.FL_Hobbies)
+                {
+                    <span class="badge bg-success me-1 mb-1">
+                        @hobby
+                        <button type="button" class="btn-close btn-close-white" 
+                                onclick="removeSkill(this, 'FL_Hobbies')" aria-label="Close"></button>
+                    </span>
+                }
+            </div>
+            <div id="FL_Hobbies_container"></div>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize hidden inputs for skills and hobbies
+        function initializeHiddenInputs() {
+            const skillsets = @Json.Serialize(Model.FL_Skillsets);
+            const hobbies = @Json.Serialize(Model.FL_Hobbies);
+            
+            updateHiddenInputs('FL_Skillsets', skillsets);
+            updateHiddenInputs('FL_Hobbies', hobbies);
+        }
+
+        // Update hidden inputs when skills/hobbies change
+        function updateHiddenInputs(fieldName, items) {
+            const container = document.getElementById(`${fieldName}_container`);
+            container.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `${fieldName}[${index}]`;
+                input.value = item;
+                container.appendChild(input);
+            });
+        }
+
+        // Remove skill/hobby
+        function removeSkill(button, fieldName) {
+            const badge = button.parentElement;
+            const value = badge.textContent.trim();
+            const items = getExistingItems(fieldName).filter(item => item !== value);
+            
+            updateHiddenInputs(fieldName, items);
+            badge.remove();
+        }
+
+        // Get existing items
+        function getExistingItems(fieldName) {
+            const container = document.getElementById(`${fieldName}_container`);
+            return Array.from(container.querySelectorAll('input')).map(input => input.value);
+        }
+
+        // Add new skill/hobby
+        function addItem(input, containerName, fieldName, bgClass) {
+            if (input.value.trim()) {
+                const items = getExistingItems(fieldName);
+                if (!items.includes(input.value.trim())) {
+                    items.push(input.value.trim());
+                    
+                    const container = document.getElementById(containerName);
+                    const badge = document.createElement('span');
+                    badge.className = `badge ${bgClass} me-1 mb-1`;
+                    badge.innerHTML = `
+                        ${input.value.trim()}
+                        <button type="button" class="btn-close btn-close-white" 
+                                onclick="removeSkill(this, '${fieldName}')" aria-label="Close"></button>
+                    `;
+                    container.appendChild(badge);
+                    
+                    updateHiddenInputs(fieldName, items);
+                }
+                input.value = '';
+            }
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeHiddenInputs();
+
+            document.getElementById('skillInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addItem(this, 'skillsetContainer', 'FL_Skillsets', 'bg-primary');
+                }
+            });
+
+            document.getElementById('hobbyInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addItem(this, 'hobbyContainer', 'FL_Hobbies', 'bg-success');
+                }
+            });
+        });
+    </script>
+}

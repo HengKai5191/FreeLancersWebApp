@@ -1,0 +1,88 @@
+﻿@using Freelancer_Management_API.Model
+@model List<MC_FreeLancer>
+
+<div class="container mt-4">
+    <h2>Freelancers</h2>
+    <h3><a href="@Url.Action("insertFreeLancer", "Home")" class="btn btn-primary btn-sm">
+                                    Insert New FreeLancer
+                                    </a></h3>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+    @if ( TempData["Success"]!= null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+    <script>
+    function confirmDelete(PN_IF_ID) {
+        if (confirm('Are you sure you want to delete this freelancer?')) {
+            
+            document.getElementById('PN_FL_Id').value = PN_IF_ID; 
+            document.getElementById('deleteForm').submit();
+        }
+    }
+</script>
+
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Skills</th>
+                        <th>Actions</th>
+                         <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var freelancer in Model)
+                    {
+                        <tr>
+                            <td>@freelancer.FL_Id</td>
+                            <td>@freelancer.FL_Username</td>
+                            <td>@freelancer.FL_Email</td>
+                             <td>
+                                @foreach (var skill in freelancer.FL_Skillsets)
+                                {
+                                    <span class="badge bg-primary me-1">@skill.Trim()</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("updateFreeLancer", "Home", new { id = freelancer.FL_Id })" class="btn btn-primary btn-sm">
+                                    Update
+                                    </a>
+                            </td>
+                            <td>
+                                <form action="@Url.Action("deleteFreeLancer", "Home")" method="post" style="display:none" id="deleteForm">
+
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" id="PN_FL_Id" name="PN_FL_Id" />
+                                </form>
+                                <a href="#" class="btn btn-primary btn-sm" onclick="confirmDelete(@freelancer.FL_Id); return false;">
+                                    Delete
+                                </a>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
