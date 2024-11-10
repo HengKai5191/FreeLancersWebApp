@@ -33,19 +33,6 @@ Setup by cloning
   - [x] Bug fixes
   - [ ] Documentation
 
-## Usage
-[Consume by FreeLancer Web App]
-```
-# Insert New FreeLancer
-var response = await _httpClient.PostAsJsonAsync($"InsertFreeLancer", model);
-
-# Get FreeLancer By ID
-var freelancer = await _httpClient.GetFromJsonAsync<MC_FreeLancer>($"GetFreeLancer/{id}");
-
-# Update FreeLanver with Model
-var response = await _httpClient.PutAsJsonAsync($"UpdateFreeLancer/{model.FL_Id}", model);
-
-```
 ### Authentication
 [No authentication needed for now]
 
